@@ -33,14 +33,20 @@ const app = http.createServer(async(request, response) => {
             request.on("data", (data) => {
                 const parsed = JSON.parse(data);
                 const aux = JSON.parse(jsonFile);
-                
-                const idValue = (parsed.id);
 
+                const idValue = (parsed.id);
                 const indexAux = aux.findIndex(item => item.id === idValue);
-                aux[indexAux].status = parsed.status;                
                 
-                fs.writeFile(jsonPath, JSON.stringify(aux));
-                response.writeHead("200");
+                if(indexAux != -1) {
+                    aux[indexAux].status = parsed.status;   
+                    fs.writeFile(jsonPath, JSON.stringify(aux));
+                    response.writeHead("200");
+                    console.log("--- Update Successful! ---");
+                } else {
+                    response.writeHead("404");
+                    console.log("--- Error 404, identify not found! ---");
+                    console.log("Enter a correct id... ");
+                }
             });
         }
 
@@ -54,12 +60,18 @@ const app = http.createServer(async(request, response) => {
                     if (element.id === valueId) { return true; }
                 });
 
-                auxDelete.splice(index, 1);
-                fs.writeFile(jsonPath, JSON.stringify(auxDelete));
-                response.writeHead("200");
+                console.log(index);
+                if(index != -1) {
+                    auxDelete.splice(index, 1);
+                    fs.writeFile(jsonPath, JSON.stringify(auxDelete));
+                    response.writeHead("200");
+                    console.log("--- Delete Successful!---");
+                } else {
+                    response.writeHead("404");
+                    console.log("--- Id not Found! ---");
+                }
             });
         }
-        
     } else {
         response.writeHead("503");
     }
